@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Seneh Life Event Board</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #050710;
+      color: #f5f5f5;
+      overflow: hidden;
+    }
+
+    .board-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 16px 24px;
+    }
+
+    .board-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+
+    .board-title {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .board-subtitle {
+      font-size: 14px;
+      opacity: 0.7;
+    }
+
+    .last-updated {
+      font-size: 12px;
+      opacity: 0.6;
+      text-align: right;
+    }
+
+    .table-wrapper {
+      flex: 1;
+      overflow: hidden;
+      border-radius: 16px;
+      border: 1px solid #22263a;
+      background: radial-gradient(circle at top left, #151b3b 0, #050710 50%);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    thead {
+      background: #101327;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    th {
+      border-bottom: 1px solid #22263a;
+      text-align: left;
+      color: #a9b4ff;
+    }
+
+    tbody {
+      font-size: 14px;
+    }
+
+    tr {
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15, 20, 40, 0.7);
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(7, 10, 25, 0.9);
+    }
+
+    tbody tr:hover {
+      background: rgba(45, 140, 255, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .col-title {
+      width: 24%;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .col-location {
+      width: 16%;
+      opacity: 0.85;
+    }
+
+    .col-category {
+      width: 12%;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.8;
+    }
+
+    .col-start {
+      width: 16%;
+    }
+
+    .col-countdown {
+      width: 18%;
+      font-feature-settings: "tnum" 1;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+
+    .col-status {
+      width: 14%;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      opacity: 0.9;
+    }
+
+    .badge-work { border-color: #3b82f6; color: #bfdbfe; }
+    .badge-family { border-color: #22c55e; color: #bbf7d0; }
+    .badge-travel { border-color: #fbbf24; color: #fef3c7; }
+    .badge-study { border-color: #a855f7; color: #e9d5ff; }
+    .badge-health { border-color: #ef4444; color: #fecaca; }
+    .badge-social { border-color: #ec4899; color: #fbcfe8; }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      min-width: 90px;
+    }
+
+    .status-upcoming {
+      background: rgba(37, 99, 235, 0.3);
+    }
+
+    .status-now {
+      background: rgba(239, 68, 68, 0.9);
+      color: #fee2e2;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.6);
+    }
+
+    .status-ongoing {
+      background: rgba(16, 185, 129, 0.6);
+      color: #ecfdf5;
+    }
+
+    .status-past {
+      background: rgba(75, 85, 99, 0.7);
+      color: #e5e7eb;
+      opacity: 0.7;
+    }
+
+    .priority-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .priority-high { background: #f97316; }
+    .priority-medium { background: #22c55e; }
+    .priority-low { background: #6b7280; }
+
+    .footer-bar {
+      font-size: 11px;
+      padding: 6px 10px;
+      border-top: 1px solid #111827;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-left {
+      opacity: 0.7;
+    }
+
+    .footer-right {
+      opacity: 0.7;
+    }
+
+    .small-mono {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-feature-settings: "tnum" 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    .error-message {
+      color: #fecaca;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 900px) {
+      .board-title {
+        font-size: 22px;
+      }
+      th, td {
+        padding: 6px 6px;
+        font-size: 12px;
+      }
+      .board-container {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="board-container">
+    <header class="board-header">
+      <div>
+        <div class="board-title">Mohan Departures</div>
+        <div class="board-subtitle">Live countdown of your events (driven by Google Sheets)</div>
+      </div>
+      <div class="last-updated">
+        <div id="last-updated-label">Last updated:</div>
+        <div id="last-updated" class="small-mono">—</div>
+      </div>
+    </header>
+
+    <section class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-title">Event</th>
+            <th class="col-location">Location</th>
+            <th class="col-category">Category</th>
+            <th class="col-start">Start</th>
+            <th class="col-countdown">In</th>
+            <th class="col-status">Status</th>
+          </tr>
+        </thead>
+        <tbody id="event-body">
+          <!-- Rows injected by JavaScript -->
+        </tbody>
+      </table>
+      <div id="empty-state" class="empty-state" style="display: none;">
+        <div>No active upcoming events found.</div>
+        <div style="font-size:12px; opacity:0.8;">
+          Make sure <strong>Active?</strong> is ticked and <strong>Start_ISO</strong> is populated in your sheet.
+        </div>
+      </div>
+      <div id="error-message" class="error-message" style="display:none;"></div>
+      <div class="footer-bar">
+        <div class="footer-left small-mono">
+          Source: Google Sheets CSV • Auto-refresh every 5 min
+        </div>
+        <div class="footer-right small-mono" id="clock">—</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // === CONFIG ===
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSCiM892-0C52EcEXQ4rcNk2yADPStNOaf1zpf85leSMdTpXFaI9Hopj8kOEREO8mZEAYYvqSQsN3Ir/pub?gid=0&single=true&output=csv";
+    const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+    const COUNTDOWN_UPDATE_MS = 1000; // 1 second
+    const MAX_PAST_AGE_HOURS = 2; // hide events finished more than 2h ago
+
+    let events = [];
+    let countdownTimer = null;
+
+    function updateClock() {
+      const now = new Date();
+      const pad = (n) => n.toString().padStart(2, '0');
+      const dateStr = [
+        now.getFullYear(),
+        pad(now.getMonth() + 1),
+        pad(now.getDate())
+      ].join("-");
+      const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      document.getElementById("clock").textContent = `${dateStr} ${timeStr}`;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // --- CSV parsing ---
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let current = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (char === '"' && !inQuotes) {
+          inQuotes = true;
+        } else if (char === '"' && inQuotes) {
+          if (next === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = false;
+          }
+        } else if (char === ',' && !inQuotes) {
+          row.push(current);
+          current = "";
+        } else if ((char === '\n' || char === '\r') && !inQuotes) {
+          if (current !== "" || row.length > 0) {
+            row.push(current);
+            rows.push(row);
+            row = [];
+            current = "";
+          }
+        } else {
+          current += char;
+        }
+      }
+      if (current !== "" || row.length > 0) {
+        row.push(current);
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function mapRowsToObjects(rows) {
+      if (!rows.length) return [];
+      const header = rows[0].map(h => h.trim());
+      const dataRows = rows.slice(1);
+
+      const colIndex = {};
+      header.forEach((name, idx) => {
+        colIndex[name] = idx;
+      });
+
+      const get = (row, key) => {
+        const idx = colIndex[key];
+        if (idx === undefined) return "";
+        return (row[idx] || "").trim();
+      };
+
+      const objects = dataRows
+        .filter(row => row.some(cell => cell && cell.trim() !== ""))
+        .map(row => {
+          const title = get(row, "Title");
+          if (!title) return null; // skip empty titles
+
+          const category = get(row, "Category");
+          const location = get(row, "Location");
+          const startIso = get(row, "Start_ISO");
+          const endIso = get(row, "End_ISO");
+          const allDay = (get(row, "All Day?") || "").toUpperCase() === "TRUE";
+          const priority = get(row, "Priority");
+          const active = (get(row, "Active?") || "").toUpperCase() === "TRUE";
+
+          // fallback if Start_ISO is empty: combine Start Date + Start Time
+          let startCombined = startIso;
+          if (!startCombined) {
+            const startDate = get(row, "Start Date");
+            const startTime = get(row, "Start Time");
+            if (startDate && startTime) {
+              startCombined = `${startDate} ${startTime}`;
+            }
+          }
+
+          let endCombined = endIso;
+          if (!endCombined) {
+            const endDate = get(row, "End Date");
+            const endTime = get(row, "End Time");
+            if (endDate && endTime) {
+              endCombined = `${endDate} ${endTime}`;
+            }
+          }
+
+          return {
+            title,
+            category,
+            location,
+            startText: startCombined,
+            endText: endCombined,
+            allDay,
+            priority,
+            active
+          };
+        })
+        .filter(Boolean);
+
+      return objects;
+    }
+
+    function parseLocalDateTime(dtStr) {
+      if (!dtStr) return null;
+
+      // Try ISO "yyyy-MM-dd HH:mm" first
+      const isoMatch = dtStr.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+      if (isoMatch) {
+        const [_, y, m, d, hh, mm] = isoMatch;
+        return new Date(
+          Number(y),
+          Number(m) - 1,
+          Number(d),
+          Number(hh),
+          Number(mm),
+          0,
+          0
+        );
+      }
+
+      // Fallback: let browser try
+      const parsed = new Date(dtStr);
+      if (!isNaN(parsed.getTime())) return parsed;
+
+      return null;
+    }
+
+    function formatDisplayStart(dt, allDay) {
+      if (!dt) return "—";
+      const pad = (n) => n.toString().padStart(2, '0');
+      const date = `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)}/${dt.getFullYear().toString().slice(-2)}`;
+      const time = `${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+      return allDay ? `${date} (all day)` : `${date} ${time}`;
+    }
+
+    function computeStatus(now, start, end) {
+      if (!start) return { status: "UNKNOWN", code: "past" };
+
+      const diffStart = start.getTime() - now.getTime();
+      const withinStart = Math.abs(diffStart) <= 10 * 60 * 1000; // 10 min window
+      const diffEnd = end ? end.getTime() - now.getTime() : null;
+
+      if (diffStart > 0) {
+        return { status: "UPCOMING", code: "upcoming" };
+      }
+
+      if (withinStart) {
+        return { status: "NOW", code: "now" };
+      }
+
+      if (diffStart <= 0 && diffEnd !== null && diffEnd > 0) {
+        return { status: "ONGOING", code: "ongoing" };
+      }
+
+      // past
+      if (diffEnd !== null) {
+        return { status: "PAST", code: "past" };
+      }
+      return { status: "PAST", code: "past" };
+    }
+
+    function formatCountdown(diffMs) {
+      if (diffMs <= 0) {
+        return "00h 00m 00s";
+      }
+      const totalSeconds = Math.floor(diffMs / 1000);
+      const days = Math.floor(totalSeconds / (24 * 3600));
+      const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      const pad = (n) => n.toString().padStart(2, '0');
+
+      if (days > 0) {
+        return `${days}d ${pad(hours)}h ${pad(minutes)}m`;
+      }
+      return `${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+    }
+
+    function categoryBadgeClass(category) {
+      if (!category) return "";
+      const c = category.trim().toLowerCase();
+      if (c === "work") return "badge-work";
+      if (c === "family") return "badge-family";
+      if (c === "travel") return "badge-travel";
+      if (c === "study") return "badge-study";
+      if (c === "health") return "badge-health";
+      if (c === "social") return "badge-social";
+      return "";
+    }
+
+    function statusClass(code) {
+      switch (code) {
+        case "upcoming": return "status-upcoming";
+        case "now": return "status-now";
+        case "ongoing": return "status-ongoing";
+        case "past": return "status-past";
+        default: return "status-past";
+      }
+    }
+
+    function renderEvents() {
+      const tbody = document.getElementById("event-body");
+      const emptyState = document.getElementById("empty-state");
+      tbody.innerHTML = "";
+
+      if (!events.length) {
+        emptyState.style.display = "flex";
+        return;
+      } else {
+        emptyState.style.display = "none";
+      }
+
+      const now = new Date();
+
+      const enriched = events
+        .filter(e => e.active)
+        .map(e => {
+          const start = parseLocalDateTime(e.startText);
+          const end = e.endText ? parseLocalDateTime(e.endText) : null;
+          const status = computeStatus(now, start, end);
+
+          let sortTime = start ? start.getTime() : Infinity;
+          if (status.code === "ongoing" && end) {
+            sortTime = end.getTime();
+          }
+
+          let ageOk = true;
+          if (status.code === "past" && end) {
+            const ageMs = now.getTime() - end.getTime();
+            const maxAgeMs = MAX_PAST_AGE_HOURS * 3600 * 1000;
+            if (ageMs > maxAgeMs) ageOk = false;
+          }
+
+          return {
+            ...e,
+            start,
+            end,
+            status,
+            sortTime,
+            ageOk
+          };
+        })
+        .filter(e => e.ageOk && e.start) // must have a valid start and not too old
+        .sort((a, b) => a.sortTime - b.sortTime);
+
+      if (!enriched.length) {
+        emptyState.style.display = "flex";
+        return;
+      } else {
+        emptyState.style.display = "none";
+      }
+
+      enriched.forEach((e, index) => {
+        const tr = document.createElement("tr");
+        tr.dataset.index = index;
+
+        const titleTd = document.createElement("td");
+        titleTd.className = "col-title";
+        const prDot = document.createElement("span");
+        prDot.className = "priority-dot " + (
+          e.priority && e.priority.toLowerCase() === "high" ? "priority-high" :
+          e.priority && e.priority.toLowerCase() === "medium" ? "priority-medium" :
+          "priority-low"
+        );
+        titleTd.appendChild(prDot);
+        const titleSpan = document.createElement("span");
+        titleSpan.textContent = e.title;
+        titleTd.appendChild(titleSpan);
+
+        const locationTd = document.createElement("td");
+        locationTd.className = "col-location";
+        locationTd.textContent = e.location || "—";
+
+        const categoryTd = document.createElement("td");
+        categoryTd.className = "col-category";
+        const catSpan = document.createElement("span");
+        catSpan.className = "badge " + categoryBadgeClass(e.category || "");
+        catSpan.textContent = (e.category || "Other").toUpperCase();
+        categoryTd.appendChild(catSpan);
+
+        const startTd = document.createElement("td");
+        startTd.className = "col-start";
+        startTd.textContent = formatDisplayStart(e.start, e.allDay);
+
+        const countdownTd = document.createElement("td");
+        countdownTd.className = "col-countdown small-mono";
+        countdownTd.dataset.start = e.start.getTime();
+        countdownTd.dataset.statusCode = e.status.code;
+        countdownTd.dataset.index = index;
+
+        const statusTd = document.createElement("td");
+        statusTd.className = "col-status";
+        const stSpan = document.createElement("span");
+        stSpan.className = "status-pill " + statusClass(e.status.code);
+        stSpan.dataset.index = index;
+        stSpan.textContent = e.status.status;
+        statusTd.appendChild(stSpan);
+
+        tr.appendChild(titleTd);
+        tr.appendChild(locationTd);
+        tr.appendChild(categoryTd);
+        tr.appendChild(startTd);
+        tr.appendChild(countdownTd);
+        tr.appendChild(statusTd);
+
+        tbody.appendChild(tr);
+      });
+
+      if (countdownTimer) {
+        clearInterval(countdownTimer);
+      }
+      countdownTimer = setInterval(() => updateCountdowns(enriched), COUNTDOWN_UPDATE_MS);
+      updateCountdowns(enriched);
+    }
+
+    function updateCountdowns(enriched) {
+      const now = new Date();
+      const tbody = document.getElementById("event-body");
+
+      Array.from(tbody.querySelectorAll(".col-countdown")).forEach(td => {
+        const index = Number(td.dataset.index);
+        const event = enriched[index];
+        if (!event || !event.start) return;
+
+        const diffStart = event.start.getTime() - now.getTime();
+        const status = computeStatus(now, event.start, event.end);
+        td.textContent = status.code === "upcoming" ? formatCountdown(diffStart) : "—";
+
+        const statusSpan = tbody.querySelector(`.status-pill[data-index="${index}"]`);
+        if (statusSpan) {
+          statusSpan.textContent = status.status;
+          statusSpan.className = "status-pill " + statusClass(status.code);
+        }
+      });
+    }
+
+    async function fetchAndRender() {
+      const errorEl = document.getElementById("error-message");
+      errorEl.style.display = "none";
+      errorEl.textContent = "";
+
+      try {
+        const response = await fetch(CSV_URL + "&cacheBust=" + Date.now());
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
+        const text = await response.text();
+        const rows = parseCSV(text);
+        const objs = mapRowsToObjects(rows);
+        events = objs;
+
+        renderEvents();
+
+        const now = new Date();
+        document.getElementById("last-updated").textContent = now.toLocaleString();
+      } catch (err) {
+        console.error("Error fetching/processing CSV:", err);
+        errorEl.style.display = "block";
+        errorEl.textContent = "Error loading events from Google Sheets. Check your internet connection or CSV link.";
+      }
+    }
+
+    fetchAndRender();
+    setInterval(fetchAndRender, REFRESH_INTERVAL_MS);
+  </script>
+</body>
+</html>
