@@ -521,23 +521,26 @@
       return { status: "PAST", code: "past" };
     }
 
-    function formatCountdown(diffMs) {
-      if (diffMs <= 0) {
-        return "00h 00m 00s";
-      }
-      const totalSeconds = Math.floor(diffMs / 1000);
-      const days = Math.floor(totalSeconds / (24 * 3600));
-      const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
+   function formatCountdown(diffMs) {
+  if (diffMs <= 0) {
+    return "00h 00m 00s";
+  }
 
-      const pad = (n) => n.toString().padStart(2, '0');
+  const totalSeconds = Math.floor(diffMs / 1000);
+  const days = Math.floor(totalSeconds / 86400); // 24 * 3600
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
 
-      if (days > 0) {
-        return `${days}d ${pad(hours)}h ${pad(minutes)}m`;
-      }
-      return `${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
-    }
+  const pad = (n) => n.toString().padStart(2, '0');
+
+  // Always show seconds — even when days > 0
+  if (days > 0) {
+    return `${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+  }
+  return `${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+}
+
 
     function categoryBadgeClass(category) {
       if (!category) return "";
@@ -728,6 +731,7 @@
   </script>
 </body>
 </html>
+
 
 
 
