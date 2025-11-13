@@ -341,17 +341,28 @@
     width: 25%;
   }
 
-  .col-countdown {
+    .col-countdown {
     width: 30%;
-    font-size: 14px;
+    font-size: 12px;
     text-align: right;
+    letter-spacing: 0.01em;
   }
+
 
   /* Status pills can fully vanish */
   .status-pill {
     display: none !important;
   }
 }
+
+    /* Countdown auto-fit support */
+.countdown-auto {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  transform-origin: right center;
+}
+
 
 
   </style>
@@ -361,7 +372,7 @@
     <header class="board-header">
       <div>
         <div class="board-title">Seneh Family Board</div>
-        <div class="board-subtitle">Live countdown of your events (driven by Google Sheets)</div>
+        <div class="board-subtitle">Live countdown of events</div>
       </div>
       <div class="last-updated">
         <div id="last-updated-label">Last updated:</div>
@@ -773,6 +784,7 @@
   </script>
 </body>
 </html>
+
 
 
 
