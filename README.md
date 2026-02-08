@@ -1,4 +1,4 @@
-# Seneh Board (Event Countdown Dashboard)
+# Event Countdown Dashboard
 
 A lightweight, responsive single-page dashboard that renders a live event board
 with countdown timers. The UI is designed for clarity on large screens and
